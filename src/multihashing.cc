@@ -9,7 +9,13 @@ extern "C" {
     #include "blake.h"
     #include "c11.h"
     #include "cryptonight.h"
+    #include "cryptonight_dark.h"
+    #include "cryptonight_dark_lite.h"
     #include "cryptonight_fast.h"
+    #include "cryptonight_lite.h"
+    #include "cryptonight_turtle.h"
+    #include "cryptonight_turtle_lite.h"
+    #include "cryptonight_soft_shell.h"
     #include "fresh.h"
     #include "fugue.h"
     #include "groestl.h"
@@ -35,6 +41,7 @@ extern "C" {
     #include "x16r.h"
     #include "x16rv2.h"
     #include "neoscrypt.h"
+	#include "minotaur.h"
     #include "crypto/argon2/argon2.h"
     #include "crypto/yescrypt/yescrypt.h"
 }
@@ -104,6 +111,7 @@ using namespace v8;
  DECLARE_CALLBACK(x15, x15_hash, 32);
  DECLARE_CALLBACK(x16r, x16r_hash, 32);
  DECLARE_CALLBACK(x16rv2, x16rv2_hash, 32);
+ DECLARE_CALLBACK(minotaur, minotaur_hash, 32);
  DECLARE_CALLBACK(yescrypt, yescrypt_hash, 32);
 
 DECLARE_FUNC(argon2d) {
@@ -316,6 +324,196 @@ DECLARE_FUNC(cryptonight) {
     }
     SET_BUFFER_RETURN(output, 32);
 }
+DECLARE_FUNC(cryptonightdark) {
+    DECLARE_SCOPE;
+
+    bool fast = false;
+    uint32_t cn_variant = 0;
+
+    if (args.Length() < 1)
+        RETURN_EXCEPT("You must provide one argument.");
+
+    if (args.Length() >= 2) {
+        if(args[1]->IsBoolean())
+            fast = args[1]->BooleanValue();
+        else if(args[1]->IsUint32())
+            cn_variant = args[1]->Uint32Value();
+        else
+            RETURN_EXCEPT("Argument 2 should be a boolean or uint32_t");
+    }
+
+    Local<Object> target = args[0]->ToObject();
+
+    if(!Buffer::HasInstance(target))
+        RETURN_EXCEPT("Argument should be a buffer object.");
+
+    char * input = Buffer::Data(target);
+    char output[32];
+
+    uint32_t input_len = Buffer::Length(target);
+
+    if(fast)
+        cryptonightdark_fast_hash(input, output, input_len);
+    else {
+        if (cn_variant > 0 && input_len < 43)
+            RETURN_EXCEPT("Argument must be 43 bytes for monero variant 1+");
+        cryptonightdark_hash(input, output, input_len, cn_variant);
+    }
+    SET_BUFFER_RETURN(output, 32);
+}
+
+DECLARE_FUNC(cryptonightdarklite) {
+    DECLARE_SCOPE;
+
+    bool fast = false;
+    uint32_t cn_variant = 0;
+
+    if (args.Length() < 1)
+        RETURN_EXCEPT("You must provide one argument.");
+
+    if (args.Length() >= 2) {
+        if(args[1]->IsBoolean())
+            fast = args[1]->BooleanValue();
+        else if(args[1]->IsUint32())
+            cn_variant = args[1]->Uint32Value();
+        else
+            RETURN_EXCEPT("Argument 2 should be a boolean or uint32_t");
+    }
+
+    Local<Object> target = args[0]->ToObject();
+
+    if(!Buffer::HasInstance(target))
+        RETURN_EXCEPT("Argument should be a buffer object.");
+
+    char * input = Buffer::Data(target);
+    char output[32];
+
+    uint32_t input_len = Buffer::Length(target);
+
+    if(fast)
+        cryptonightdarklite_fast_hash(input, output, input_len);
+    else {
+        if (cn_variant > 0 && input_len < 43)
+            RETURN_EXCEPT("Argument must be 43 bytes for monero variant 1+");
+        cryptonightdarklite_hash(input, output, input_len, cn_variant);
+    }
+    SET_BUFFER_RETURN(output, 32);
+}
+
+DECLARE_FUNC(cryptonightlite) {
+    DECLARE_SCOPE;
+
+    bool fast = false;
+    uint32_t cn_variant = 0;
+
+    if (args.Length() < 1)
+        RETURN_EXCEPT("You must provide one argument.");
+
+    if (args.Length() >= 2) {
+        if(args[1]->IsBoolean())
+            fast = args[1]->BooleanValue();
+        else if(args[1]->IsUint32())
+            cn_variant = args[1]->Uint32Value();
+        else
+            RETURN_EXCEPT("Argument 2 should be a boolean or uint32_t");
+    }
+
+    Local<Object> target = args[0]->ToObject();
+
+    if(!Buffer::HasInstance(target))
+        RETURN_EXCEPT("Argument should be a buffer object.");
+
+    char * input = Buffer::Data(target);
+    char output[32];
+
+    uint32_t input_len = Buffer::Length(target);
+
+    if(fast)
+        cryptonightlite_fast_hash(input, output, input_len);
+    else {
+        if (cn_variant > 0 && input_len < 43)
+            RETURN_EXCEPT("Argument must be 43 bytes for monero variant 1+");
+        cryptonightlite_hash(input, output, input_len, cn_variant);
+    }
+    SET_BUFFER_RETURN(output, 32);
+}
+
+DECLARE_FUNC(cryptonightturtle) {
+    DECLARE_SCOPE;
+
+    bool fast = false;
+    uint32_t cn_variant = 0;
+
+    if (args.Length() < 1)
+        RETURN_EXCEPT("You must provide one argument.");
+
+    if (args.Length() >= 2) {
+        if(args[1]->IsBoolean())
+            fast = args[1]->BooleanValue();
+        else if(args[1]->IsUint32())
+            cn_variant = args[1]->Uint32Value();
+        else
+            RETURN_EXCEPT("Argument 2 should be a boolean or uint32_t");
+    }
+
+    Local<Object> target = args[0]->ToObject();
+
+    if(!Buffer::HasInstance(target))
+        RETURN_EXCEPT("Argument should be a buffer object.");
+
+    char * input = Buffer::Data(target);
+    char output[32];
+
+    uint32_t input_len = Buffer::Length(target);
+
+    if(fast)
+        cryptonightturtle_fast_hash(input, output, input_len);
+    else {
+        if (cn_variant > 0 && input_len < 43)
+            RETURN_EXCEPT("Argument must be 43 bytes for monero variant 1+");
+        cryptonightturtle_hash(input, output, input_len, cn_variant);
+    }
+    SET_BUFFER_RETURN(output, 32);
+}
+
+DECLARE_FUNC(cryptonightturtlelite) {
+    DECLARE_SCOPE;
+
+    bool fast = false;
+    uint32_t cn_variant = 0;
+
+    if (args.Length() < 1)
+        RETURN_EXCEPT("You must provide one argument.");
+
+    if (args.Length() >= 2) {
+        if(args[1]->IsBoolean())
+            fast = args[1]->BooleanValue();
+        else if(args[1]->IsUint32())
+            cn_variant = args[1]->Uint32Value();
+        else
+            RETURN_EXCEPT("Argument 2 should be a boolean or uint32_t");
+    }
+
+    Local<Object> target = args[0]->ToObject();
+
+    if(!Buffer::HasInstance(target))
+        RETURN_EXCEPT("Argument should be a buffer object.");
+
+    char * input = Buffer::Data(target);
+    char output[32];
+
+    uint32_t input_len = Buffer::Length(target);
+
+    if(fast)
+        cryptonightturtlelite_fast_hash(input, output, input_len);
+    else {
+        if (cn_variant > 0 && input_len < 43)
+            RETURN_EXCEPT("Argument must be 43 bytes for monero variant 1+");
+        cryptonightturtlelite_hash(input, output, input_len, cn_variant);
+    }
+    SET_BUFFER_RETURN(output, 32);
+}
+
 DECLARE_FUNC(cryptonightfast) {
     bool fast = false;
     uint32_t cn_variant = 0;
@@ -351,6 +549,154 @@ DECLARE_FUNC(cryptonightfast) {
     }
     SET_BUFFER_RETURN(output, 32);
 }
+DECLARE_FUNC(cryptonightsoftshell) {
+    DECLARE_SCOPE;
+
+    bool fast = false;
+    uint32_t cn_variant = 0;
+    uint32_t height = 0;
+
+    if (args.Length() < 1)
+      RETURN_EXCEPT("You must provide one argument.");
+
+    if (args.Length() >= 2) {
+        if(args[1]->IsBoolean())
+            fast = args[1]->BooleanValue();
+        else if(args[1]->IsUint32())
+            cn_variant = args[1]->Uint32Value();
+        else
+            RETURN_EXCEPT("Argument 2 should be a boolean or uint32_t");
+    }
+
+    if (args.Length() >= 3) {
+      if (args[2]->IsUint32())
+        height = args[2]->Uint32Value();
+      else
+        RETURN_EXCEPT("Argument 3 should be an uint32_t");
+    }
+
+    /* Default CN Soft Shell values */
+    uint32_t CN_SOFT_SHELL_MEMORY = 262144;
+    uint32_t CN_SOFT_SHELL_ITER = (CN_SOFT_SHELL_MEMORY / 2);
+    uint32_t CN_SOFT_SHELL_WINDOW = 2048;
+    uint32_t CN_SOFT_SHELL_MULTIPLIER = 3;
+
+    if (args.Length() >= 4) {
+      if (args[3]->IsUint32()) {
+        CN_SOFT_SHELL_MEMORY = args[3]->Uint32Value();
+        CN_SOFT_SHELL_ITER  = (CN_SOFT_SHELL_MEMORY / 2);
+      } else {
+        RETURN_EXCEPT("Argument 4 should be an uint32_t (scratchpad)");
+      }
+    }
+
+    if (args.Length() >= 5) {
+      if (args[4]->IsUint32())
+        CN_SOFT_SHELL_WINDOW = args[4]->Uint32Value();
+      else
+        RETURN_EXCEPT("Argument 6 should be an uint32_t (window)");
+    }
+
+    if (args.Length() >= 6) {
+      if (args[5]->IsUint32())
+        CN_SOFT_SHELL_MULTIPLIER = args[5]->Uint32Value();
+      else
+        RETURN_EXCEPT("Argument 6 should be an uint32_t (multiplier)");
+    }
+
+    uint32_t CN_SOFT_SHELL_PAD_MULTIPLIER = (CN_SOFT_SHELL_WINDOW / CN_SOFT_SHELL_MULTIPLIER);
+    uint32_t CN_SOFT_SHELL_ITER_MULTIPLIER = (CN_SOFT_SHELL_PAD_MULTIPLIER / 2);
+
+    Local<Object> target = args[0]->ToObject();
+
+    uint32_t base_offset = (height % CN_SOFT_SHELL_WINDOW);
+    int32_t offset = (height % (CN_SOFT_SHELL_WINDOW * 2)) - (base_offset * 2);
+    if (offset < 0) {
+      offset = base_offset;
+    }
+
+    uint32_t scratchpad = CN_SOFT_SHELL_MEMORY + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_PAD_MULTIPLIER);
+	scratchpad = (static_cast<uint64_t>(scratchpad / 128)) * 128;
+    uint32_t iterations = CN_SOFT_SHELL_ITER + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_ITER_MULTIPLIER);
+
+    char * input = Buffer::Data(target);
+    char output[32];
+
+    uint32_t input_len = Buffer::Length(target);
+
+    if(fast)
+        cryptonight_soft_shell_fast_hash(input, output, input_len);
+    else {
+        if (cn_variant > 0 && input_len < 43)
+            RETURN_EXCEPT("Argument must be 43 bytes for monero variant 1+");
+        cryptonight_soft_shell_hash(input, output, input_len, cn_variant, scratchpad, iterations);
+    }
+    SET_BUFFER_RETURN(output, 32);
+}
+
+DECLARE_FUNC(chukwa) {
+    DECLARE_SCOPE;
+
+    // Chukwa Definitions
+    const uint32_t hashlen = 32; // The length of the resulting hash in bytes
+    const uint32_t saltlen = 16; // The length of our salt in bytes
+    const uint32_t threads = 1; // How many threads to use at once
+    const uint32_t iters = 3; // How many iterations we perform as part of our slow-hash
+    const uint32_t memory = 512; // This value is in KiB (0.5MB)
+
+    if (args.Length() < 1)
+        RETURN_EXCEPT("You must provide one argument.");
+
+    Local<Object> target = args[0]->ToObject();
+
+    if(!Buffer::HasInstance(target))
+        RETURN_EXCEPT("Argument should be a buffer object.");
+
+    char * input = Buffer::Data(target);
+    char output[32];
+
+    uint32_t input_len = Buffer::Length(target);
+
+    uint8_t salt[saltlen];
+    std::memcpy(salt, input, sizeof(salt));
+
+    argon2id_hash_raw(iters, memory, threads, input, input_len, salt, saltlen, output, hashlen);
+
+    SET_BUFFER_RETURN(output, 32);
+}
+
+DECLARE_FUNC(chukwav2) {
+    DECLARE_SCOPE;
+
+    // Chukwa Common Definitions
+    const uint32_t hashlen = 32; // The length of the resulting hash in bytes
+    const uint32_t saltlen = 16; // The length of our salt in bytes
+    // Chukwa v2 Definitions
+    const uint32_t threads = 1; // How many threads to use at once
+    const uint32_t iters = 4; // How many iterations we perform as part of our slow-hash
+    const uint32_t memory = 1024; // This value is in KiB (1MB)
+
+    if (args.Length() < 1)
+        RETURN_EXCEPT("You must provide one argument.");
+
+    Local<Object> target = args[0]->ToObject();
+
+    if(!Buffer::HasInstance(target))
+        RETURN_EXCEPT("Argument should be a buffer object.");
+
+    char * input = Buffer::Data(target);
+    char output[32];
+
+    uint32_t input_len = Buffer::Length(target);
+
+    uint8_t salt[saltlen];
+    std::memcpy(salt, input, sizeof(salt));
+
+    argon2id_hash_raw(iters, memory, threads, input, input_len, salt, saltlen, output, hashlen);
+
+    SET_BUFFER_RETURN(output, 32);
+}
+
 DECLARE_FUNC(boolberry) {
     if (info.Length() < 2)
         RETURN_EXCEPT("You must provide two arguments.");
@@ -394,6 +740,14 @@ NAN_MODULE_INIT(init) {
     NAN_EXPORT(target, c11);
     NAN_EXPORT(target, cryptonight);
     NAN_EXPORT(target, cryptonightfast);
+    NAN_EXPORT(target, cryptonightdark);
+    NAN_EXPORT(target, cryptonightdarklite);
+    NAN_EXPORT(target, cryptonightlite);
+    NAN_EXPORT(target, cryptonightturtle);
+    NAN_EXPORT(target, cryptonightturtlelite);
+    NAN_EXPORT(target, cryptonightsoftshell);
+    NAN_EXPORT(target, chukwa);
+    NAN_EXPORT(target, chukwav2);
     NAN_EXPORT(target, fresh);
     NAN_EXPORT(target, fugue);
     NAN_EXPORT(target, groestl);
@@ -421,6 +775,7 @@ NAN_MODULE_INIT(init) {
     NAN_EXPORT(target, x16r);
     NAN_EXPORT(target, x16rv2);
     NAN_EXPORT(target, neoscrypt);
+    NAN_EXPORT(target, minotaur);
     NAN_EXPORT(target, yescrypt);
 }
 
